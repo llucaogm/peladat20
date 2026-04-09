@@ -459,6 +459,18 @@
     var m = document.getElementById('modal-user-menu');
     if(m) m.style.display = 'none';
   }
+  function openEditProfile() {
+    var nameEl = document.getElementById('edit-profile-name');
+    var nickEl = document.getElementById('edit-profile-nick');
+    if(nameEl) nameEl.value = (typeof CURRENT_USER !== 'undefined' ? CURRENT_USER : '') || '';
+    if(nickEl) nickEl.value = '';
+    var m = document.getElementById('modal-edit-profile');
+    if(m) m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;align-items:center;justify-content:center;';
+  }
+  function closeEditProfile() {
+    var m = document.getElementById('modal-edit-profile');
+    if(m) m.style.display = 'none';
+  }
   </script>
 </head>
 <body>
@@ -885,15 +897,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
-function openEditProfile() {
-  document.getElementById('edit-profile-name').value = CURRENT_USER || '';
-  document.getElementById('edit-profile-nick').value = '';
-  document.getElementById('modal-edit-profile').style.display = 'flex';
-}
-
-function closeEditProfile() {
-  document.getElementById('modal-edit-profile').style.display = 'none';
-}
+// openEditProfile/closeEditProfile -> movidos para head
 
 async function saveEditProfile() {
   const name = document.getElementById('edit-profile-name').value.trim();
