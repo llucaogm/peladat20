@@ -1,0 +1,22 @@
+{
+  "name": "Pelada T20",
+  "short_name": "Pelada T20",
+  "description": "Organize sua pelada: presenças, times, stats e pagamentos.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0d1a0e",
+  "theme_color": "#0E5A24",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/8LxfYnpw/Escudo-T20-FC.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.ibb.co/8LxfYnpw/Escudo-T20-FC.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
