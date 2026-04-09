@@ -564,7 +564,7 @@
         <span class="pill-tag gold" id="topbar-next">Próxima terça · 20h</span>
       </div>
       <div class="tb-right">
-        <button id="topbar-user-pill" onclick="openUserModal()" style="display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#fff;padding:.4rem .85rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.18s;">
+        <button id="topbar-user-pill" onclick="openUserModal()" style="display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#fff;padding:.4rem .85rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.18s;position:relative;z-index:200;">
           <span id="topbar-user-pill-text">—</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -875,7 +875,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
 function openUserModal() {
-  document.getElementById('modal-user-menu').style.display = 'flex';
+  var m = document.getElementById('modal-user-menu');
+  m.style.cssText = 'display:flex !important;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;align-items:flex-start;justify-content:flex-end;padding:4rem 1.5rem 0;';
 }
 function closeUserModal() {
   document.getElementById('modal-user-menu').style.display = 'none';
