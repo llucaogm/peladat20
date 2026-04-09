@@ -564,25 +564,10 @@
         <span class="pill-tag gold" id="topbar-next">Próxima terça · 20h</span>
       </div>
       <div class="tb-right">
-        <div style="position:relative;display:inline-block;z-index:9999;">
-        <button id="topbar-user-pill" onclick="toggleUserMenu(event)" style="display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#fff;padding:.4rem .85rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.18s;" onmouseover="this.style.background='rgba(255,255,255,.13)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">
+        <button id="topbar-user-pill" onclick="openUserModal()" style="display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#fff;padding:.4rem .85rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.18s;">
           <span id="topbar-user-pill-text">—</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div id="user-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + .5rem);min-width:200px;background:#0f2012;border:1px solid rgba(255,255,255,.15);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:9999;overflow:hidden;">
-          <div style="padding:.85rem 1rem;border-bottom:1px solid rgba(255,255,255,.08);">
-            <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Logado como</div>
-            <div id="dropdown-user-name" style="font-weight:700;font-size:.95rem;margin-top:.2rem;">—</div>
-            <div id="dropdown-user-role" style="font-size:.75rem;color:var(--gold-light);margin-top:.1rem;">—</div>
-          </div>
-          <button onclick="toggleUserMenu();openEditProfile()" style="width:100%;text-align:left;padding:.75rem 1rem;background:none;border:none;color:#fff;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='none'">
-            ✏️ Editar meu perfil
-          </button>
-          <button onclick="toggleUserMenu();doLogout()" style="width:100%;text-align:left;padding:.75rem 1rem;background:none;border:none;color:#f87171;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;border-top:1px solid rgba(255,255,255,.08);" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='none'">
-            🚪 Sair
-          </button>
-        </div>
-      </div>
         <button class="btn btn-primary btn-sm" id="btn-confirmar" onclick="confirmarPresenca()">✅ Confirmar Presença</button>
       </div>
     </header>
@@ -889,16 +874,12 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
-function toggleUserMenu(e) {
-  e.stopPropagation();
-  const d = document.getElementById('user-dropdown');
-  const isOpen = d.style.display === 'block';
-  d.style.display = isOpen ? 'none' : 'block';
+function openUserModal() {
+  document.getElementById('modal-user-menu').style.display = 'flex';
 }
-document.addEventListener('click', function(e) {
-  const drop = document.getElementById('user-dropdown');
-  if(drop && !drop.contains(e.target)) drop.style.display = 'none';
-});
+function closeUserModal() {
+  document.getElementById('modal-user-menu').style.display = 'none';
+}
 
 function openEditProfile() {
   document.getElementById('edit-profile-name').value = CURRENT_USER || '';
@@ -1744,6 +1725,23 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{ if(e.key==
         <button class="btn btn-primary" onclick="saveEditProfile()" style="flex:1;justify-content:center;">Salvar</button>
         <button class="btn" onclick="closeEditProfile()" style="flex:1;justify-content:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);">Cancelar</button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL USUÁRIO -->
+  <div id="modal-user-menu" onclick="if(event.target===this)closeUserModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;align-items:flex-start;justify-content:flex-end;padding:4rem 1.5rem 0;">
+    <div style="background:#0f2012;border:1px solid rgba(255,255,255,.15);border-radius:16px;min-width:220px;box-shadow:0 16px 48px rgba(0,0,0,.7);overflow:hidden;">
+      <div style="padding:.85rem 1rem;border-bottom:1px solid rgba(255,255,255,.08);">
+        <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Logado como</div>
+        <div id="dropdown-user-name" style="font-weight:700;font-size:.95rem;margin-top:.2rem;">—</div>
+        <div id="dropdown-user-role" style="font-size:.75rem;color:var(--gold-light);margin-top:.1rem;">—</div>
+      </div>
+      <button onclick="closeUserModal();openEditProfile()" style="width:100%;text-align:left;padding:.75rem 1rem;background:none;border:none;color:#fff;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;">
+        ✏️ Editar meu perfil
+      </button>
+      <button onclick="closeUserModal();doLogout()" style="width:100%;text-align:left;padding:.75rem 1rem;background:none;border:none;color:#f87171;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;border-top:1px solid rgba(255,255,255,.08);">
+        🚪 Sair
+      </button>
     </div>
   </div>
 </body>
