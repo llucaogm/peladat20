@@ -471,6 +471,16 @@
     var m = document.getElementById('modal-edit-profile');
     if(m) m.style.display = 'none';
   }
+  function openSolicitarCadastro() {
+    var m = document.getElementById('modal-solicitar-cadastro');
+    if(m) m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;';
+    var nameEl = document.getElementById('req-name');
+    if(nameEl && typeof CURRENT_USER !== 'undefined') nameEl.value = CURRENT_USER || '';
+  }
+  function closeSolicitarCadastro() {
+    var m = document.getElementById('modal-solicitar-cadastro');
+    if(m) m.style.display = 'none';
+  }
   async function saveEditProfile() {
     var name = document.getElementById('edit-profile-name').value.trim();
     var nick = document.getElementById('edit-profile-nick').value.trim();
@@ -773,6 +783,19 @@
           <div class="card">
             <div class="card-header"><div><h3>👮 ADMs cadastrados</h3><p>Todos com mesmo nível de acesso.</p></div></div>
             <div class="adm-list" id="adm-list"></div>
+          </div>
+        
+          <!-- Card Solicitações Pendentes -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>🔔 Solicitações de cadastro <span id="badge-requests" style="background:var(--danger);color:#fff;border-radius:999px;padding:.1rem .55rem;font-size:.75rem;margin-left:.4rem;display:none;">0</span></h3>
+                <p>Novos jogadores aguardando aprovação.</p>
+              </div>
+            </div>
+            <div id="adm-requests-list" style="padding:0 0 .5rem;">
+              <div style="padding:1rem;text-align:center;color:var(--muted);font-size:.88rem;">Carregando...</div>
+            </div>
           </div>
         </div>
 
@@ -1080,6 +1103,83 @@ async function dbSaveTeams(teams){
 }
 </script>
 <script>
+// ═══════════════════════════════════════════
+// SOLICITAÇÕES DE CADASTRO
+// ═══════════════════════════════════════════
+let REQUESTS = [];
+
+async function dbLoadRequests(){
+  if(!IS_ADM) return;
+  const {data} = await _supa.from('player_requests').select('*').order('created_at',{ascending:true});
+  REQUESTS = data || [];
+  renderRequests();
+}
+
+async function enviarSolicitacao(){
+  const name = document.getElementById('req-name').value.trim();
+  const wpp  = document.getElementById('req-wpp').value.trim();
+  const pos  = document.getElementById('req-pos').value;
+  const type = document.getElementById('req-type').value;
+  if(!name){ showToast('⚠️ Preencha seu nome.'); return; }
+  const {error} = await _supa.from('player_requests').insert({
+    name, wpp, pos, type, auth_id: CURRENT_USER_ID, status:'pendente'
+  });
+  if(error){ showToast('❌ Erro: '+error.message); return; }
+  closeSolicitarCadastro();
+  showToast('✅ Solicitação enviada! Aguarde aprovação do ADM.');
+}
+
+async function aprovarRequest(id){
+  const req = REQUESTS.find(r=>r.id===id);
+  if(!req) return;
+  // 1. Criar jogador
+  const {data:player, error:errP} = await _supa.from('players')
+    .insert({name:req.name, wpp:req.wpp||'', pos:req.pos, type:req.type, level:3, active:true})
+    .select().single();
+  if(errP){ showToast('❌ Erro ao criar jogador: '+errP.message); return; }
+  // 2. Vincular profile ao player
+  await _supa.from('profiles').update({player_id: player.id}).eq('id', req.auth_id);
+  // 3. Marcar como aprovado
+  await _supa.from('player_requests').update({status:'aprovado'}).eq('id', id);
+  showToast('✅ '+req.name+' aprovado e adicionado ao elenco!');
+  await dbLoadPlayers();
+  await dbLoadRequests();
+}
+
+async function rejeitarRequest(id){
+  const req = REQUESTS.find(r=>r.id===id);
+  if(!req) return;
+  await _supa.from('player_requests').update({status:'rejeitado'}).eq('id', id);
+  showToast('🗑️ Solicitação de '+req.name+' rejeitada.');
+  await dbLoadRequests();
+}
+
+function renderRequests(){
+  const container = document.getElementById('adm-requests-list');
+  if(!container) return;
+  const pendentes = REQUESTS.filter(r=>r.status==='pendente');
+  const badge = document.getElementById('badge-requests');
+  if(badge){ badge.textContent=pendentes.length; badge.style.display=pendentes.length>0?'':'none'; }
+  if(!pendentes.length){
+    container.innerHTML='<div style="padding:1rem;text-align:center;color:var(--muted);font-size:.88rem;">Nenhuma solicitação pendente.</div>';
+    return;
+  }
+  container.innerHTML = pendentes.map(r=>`
+    <div class="list-item" style="flex-direction:column;align-items:flex-start;gap:.6rem;padding:1rem;">
+      <div style="display:flex;align-items:center;gap:.75rem;width:100%;">
+        <div class="avatar avatar-sm">${r.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</div>
+        <div style="flex:1;">
+          <div class="person-name">${r.name}</div>
+          <div class="person-sub">${r.pos} · ${r.type} ${r.wpp?'· '+r.wpp:''}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.5rem;width:100%;">
+        <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center;" onclick="aprovarRequest('${r.id}')">✅ Aprovar</button>
+        <button class="btn btn-danger btn-sm" style="flex:1;justify-content:center;" onclick="rejeitarRequest('${r.id}')">❌ Rejeitar</button>
+      </div>
+    </div>`).join('');
+}
+
 // openUserModal definido no head
 
 // ═══════════════════════════════════════════
@@ -1239,6 +1339,7 @@ async function initApp(){
   await dbLoadConfig();
   await dbLoadPlayers();
   await dbLoadPayments();
+  if(IS_ADM) await dbLoadRequests();
   await dbLoadAttendance();
   startCountdown();
   renderPage('home');
@@ -1297,7 +1398,7 @@ async function confirmarPresenca(){
   if(!CURRENT_USER){ showToast('Faça login primeiro!'); return; }
   if(!LISTA_OPEN){ showToast('⛔ A lista está fechada.'); return; }
   const j = PLAYERS.find(p=>p.name.toLowerCase().includes(CURRENT_USER.toLowerCase()));
-  if(!j){ showToast('⚠️ Jogador não encontrado no elenco. Peça ao ADM para te cadastrar.'); return; }
+  if(!j){ openSolicitarCadastro(); return; }
   if(j.confirmado){ showToast('✅ Você já está confirmado!'); return; }
   j.confirmado = true;
   const titulares = CONFIRMED.filter(p=>!p.gk);
@@ -1769,6 +1870,42 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{ if(e.key==
       <button onclick="closeUserModal();doLogout()" style="width:100%;text-align:left;padding:.75rem 1rem;background:none;border:none;color:#f87171;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;border-top:1px solid rgba(255,255,255,.08);">
         🚪 Sair
       </button>
+    </div>
+  </div>
+
+  <!-- MODAL SOLICITAR CADASTRO -->
+  <div id="modal-solicitar-cadastro" onclick="if(event.target===this)closeSolicitarCadastro()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;">
+    <div style="background:#0f2012;border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:1.5rem;width:90%;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,.7);">
+      <h3 style="margin:0 0 .4rem;font-size:1.1rem;">📋 Solicitar cadastro</h3>
+      <p style="font-size:.83rem;color:var(--muted);margin:0 0 1.2rem;">Preencha seus dados. Um ADM irá aprovar em breve.</p>
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label class="form-label">Seu nome completo</label>
+        <input class="form-input" type="text" id="req-name" placeholder="Ex: Lucas Oliveira"/>
+      </div>
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label class="form-label">WhatsApp</label>
+        <input class="form-input" type="text" id="req-wpp" placeholder="(11) 99999-9999"/>
+      </div>
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label class="form-label">Posição</label>
+        <select class="form-input" id="req-pos">
+          <option value="atacante">Atacante</option>
+          <option value="meio">Meia</option>
+          <option value="defensor">Defensor</option>
+          <option value="goleiro">Goleiro</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:1.4rem;">
+        <label class="form-label">Tipo</label>
+        <select class="form-input" id="req-type">
+          <option value="mensalista">Mensalista</option>
+          <option value="diarista">Diarista</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:.75rem;">
+        <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="enviarSolicitacao()">Enviar solicitação</button>
+        <button class="btn btn-secondary" onclick="closeSolicitarCadastro()">Cancelar</button>
+      </div>
     </div>
   </div>
 </body>
