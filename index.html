@@ -565,7 +565,7 @@
       </div>
       <div class="tb-right">
         <div style="position:relative;display:inline-block;">
-        <button id="topbar-user-pill" onclick="toggleUserMenu()" style="display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#fff;padding:.4rem .85rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.18s;" onmouseover="this.style.background='rgba(255,255,255,.13)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">
+        <button id="topbar-user-pill" onclick="toggleUserMenu(event)" style="display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#fff;padding:.4rem .85rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.18s;" onmouseover="this.style.background='rgba(255,255,255,.13)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">
           <span id="topbar-user-pill-text">—</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -889,15 +889,18 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
-function toggleUserMenu() {
+function toggleUserMenu(e) {
+  if(e) e.stopPropagation();
   const d = document.getElementById('user-dropdown');
-  d.style.display = d.style.display === 'none' ? 'block' : 'none';
+  d.style.display = d.style.display === 'none' || d.style.display === '' ? 'block' : 'none';
 }
 document.addEventListener('click', function(e) {
-  if(!e.target.closest('#topbar-user-pill') && !e.target.closest('#user-dropdown')) {
-    const d = document.getElementById('user-dropdown');
-    if(d) d.style.display = 'none';
-  }
+  const pill = document.getElementById('topbar-user-pill');
+  const drop = document.getElementById('user-dropdown');
+  if(!drop) return;
+  if(pill && pill.contains(e.target)) return;
+  if(drop.contains(e.target)) return;
+  drop.style.display = 'none';
 });
 
 function openEditProfile() {
@@ -1348,7 +1351,6 @@ function renderElenco(){
       <div class="player-chips">
         <span class="chip">${p.type==='mensalista'?'Mensalista':'Diarista'}</span>
         <span class="chip">${p.wpp||'Sem WhatsApp'}</span>
-        ${p.pago ? '<span class="chip" style="color:#8fe49b;">Pagou ✅</span>' : '<span class="chip" style="color:#ffb3b3;">Pendente ❌</span>'}
       </div>
       <div class="player-stats">
         <div class="stat-mini"><div class="stat-mini-label">Gols</div><div class="stat-mini-val">${p.gols}</div></div>
