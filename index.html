@@ -471,6 +471,25 @@
     var m = document.getElementById('modal-edit-profile');
     if(m) m.style.display = 'none';
   }
+  async function saveEditProfile() {
+    var name = document.getElementById('edit-profile-name').value.trim();
+    var nick = document.getElementById('edit-profile-nick').value.trim();
+    if(!name){ if(typeof showToast==='function') showToast('⚠️ Nome não pode ficar vazio.'); return; }
+    if(typeof _supa === 'undefined'){ if(typeof showToast==='function') showToast('❌ Sem conexão com banco.'); return; }
+    var updateData = { name: name };
+    if(nick) updateData.nickname = nick;
+    var res = await _supa.from('profiles').update(updateData).eq('id', CURRENT_USER_ID);
+    if(res.error){ if(typeof showToast==='function') showToast('❌ Erro: ' + res.error.message); return; }
+    CURRENT_USER = name;
+    var pill = document.getElementById('topbar-user-pill-text');
+    var dname = document.getElementById('dropdown-user-name');
+    var sbuser = document.getElementById('sb-user');
+    if(pill) pill.textContent = name;
+    if(dname) dname.textContent = name;
+    if(sbuser) sbuser.textContent = name;
+    closeEditProfile();
+    if(typeof showToast==='function') showToast('✅ Perfil atualizado!');
+  }
   </script>
 </head>
 <body>
@@ -899,21 +918,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
 // openEditProfile/closeEditProfile -> movidos para head
 
-async function saveEditProfile() {
-  const name = document.getElementById('edit-profile-name').value.trim();
-  const nick = document.getElementById('edit-profile-nick').value.trim();
-  if(!name){ showToast('⚠️ Nome não pode ficar vazio.'); return; }
-  const { error } = await _supa.from('profiles')
-    .update({ name: name, ...(nick ? { nickname: nick } : {}) })
-    .eq('id', CURRENT_USER_ID);
-  if(error){ showToast('❌ Erro ao salvar: ' + error.message); return; }
-  CURRENT_USER = name;
-  document.getElementById('topbar-user-pill-text').textContent = name;
-  document.getElementById('dropdown-user-name').textContent = name;
-  document.getElementById('sb-user').textContent = name;
-  closeEditProfile();
-  showToast('✅ Perfil atualizado!');
-}
+// saveEditProfile -> movido para head
 
 </script>
 <script>
@@ -1732,7 +1737,19 @@ document.getElementById('login-pass').addEventListener('keydown',e=>{ if(e.key==
         <input class="form-input" type="text" id="edit-profile-nick" placeholder="Ex: Bolinha, Craque..."/>
       </div>
       <div style="display:flex;gap:.75rem;">
-        <button class="btn btn-primary" onclick="saveEditProfile()" style="flex:1;justify-content:center;">Salvar</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="(async function(){
+  var name=document.getElementById('edit-profile-name').value.trim();
+  var nick=document.getElementById('edit-profile-nick').value.trim();
+  if(!name){alert('Nome não pode ficar vazio.');return;}
+  if(typeof _supa==='undefined'){alert('Sem conexão com banco.');return;}
+  var upd={name:name};if(nick)upd.nickname=nick;
+  var r=await _supa.from('profiles').update(upd).eq('id',CURRENT_USER_ID);
+  if(r.error){alert('Erro: '+r.error.message);return;}
+  CURRENT_USER=name;
+  ['topbar-user-pill-text','dropdown-user-name','sb-user'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=name;});
+  document.getElementById('modal-edit-profile').style.display='none';
+  if(typeof showToast==='function')showToast('✅ Perfil atualizado!');
+})()">Salvar</button>
         <button class="btn" onclick="closeEditProfile()" style="flex:1;justify-content:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);">Cancelar</button>
       </div>
     </div>
