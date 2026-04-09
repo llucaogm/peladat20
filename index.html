@@ -62,7 +62,7 @@
     }
     .main{flex:1;min-width:0;display:flex;flex-direction:column;}
     .topbar{
-      position:sticky;top:0;z-index:20;height:var(--nav-h);
+      position:sticky;top:0;z-index:100;height:var(--nav-h);
       display:flex;align-items:center;justify-content:space-between;gap:1rem;
       padding:0 1.5rem;border-bottom:1px solid var(--border-dim);
       background:rgba(9,18,11,.82);backdrop-filter:blur(18px);
@@ -564,12 +564,12 @@
         <span class="pill-tag gold" id="topbar-next">Próxima terça · 20h</span>
       </div>
       <div class="tb-right">
-        <div style="position:relative;display:inline-block;">
+        <div style="position:relative;display:inline-block;z-index:9999;">
         <button id="topbar-user-pill" onclick="toggleUserMenu(event)" style="display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#fff;padding:.4rem .85rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.18s;" onmouseover="this.style.background='rgba(255,255,255,.13)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">
           <span id="topbar-user-pill-text">—</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div id="user-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + .5rem);min-width:200px;background:#0f2012;border:1px solid rgba(255,255,255,.15);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:999;overflow:hidden;">
+        <div id="user-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + .5rem);min-width:200px;background:#0f2012;border:1px solid rgba(255,255,255,.15);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:9999;overflow:hidden;">
           <div style="padding:.85rem 1rem;border-bottom:1px solid rgba(255,255,255,.08);">
             <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Logado como</div>
             <div id="dropdown-user-name" style="font-weight:700;font-size:.95rem;margin-top:.2rem;">—</div>
@@ -890,17 +890,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
 function toggleUserMenu(e) {
-  if(e) e.stopPropagation();
+  e.stopPropagation();
   const d = document.getElementById('user-dropdown');
-  d.style.display = d.style.display === 'none' || d.style.display === '' ? 'block' : 'none';
+  const isOpen = d.style.display === 'block';
+  d.style.display = isOpen ? 'none' : 'block';
 }
 document.addEventListener('click', function(e) {
-  const pill = document.getElementById('topbar-user-pill');
   const drop = document.getElementById('user-dropdown');
-  if(!drop) return;
-  if(pill && pill.contains(e.target)) return;
-  if(drop.contains(e.target)) return;
-  drop.style.display = 'none';
+  if(drop && !drop.contains(e.target)) drop.style.display = 'none';
 });
 
 function openEditProfile() {
