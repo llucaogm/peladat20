@@ -564,7 +564,25 @@
         <span class="pill-tag gold" id="topbar-next">Próxima terça · 20h</span>
       </div>
       <div class="tb-right">
-        <span class="pill-tag" id="topbar-user-pill">—</span>
+        <div style="position:relative;display:inline-block;">
+        <button id="topbar-user-pill" onclick="toggleUserMenu()" style="display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#fff;padding:.4rem .85rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.18s;" onmouseover="this.style.background='rgba(255,255,255,.13)'" onmouseout="this.style.background='rgba(255,255,255,.07)'">
+          <span id="topbar-user-pill-text">—</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="user-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + .5rem);min-width:200px;background:#0f2012;border:1px solid rgba(255,255,255,.15);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:999;overflow:hidden;">
+          <div style="padding:.85rem 1rem;border-bottom:1px solid rgba(255,255,255,.08);">
+            <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Logado como</div>
+            <div id="dropdown-user-name" style="font-weight:700;font-size:.95rem;margin-top:.2rem;">—</div>
+            <div id="dropdown-user-role" style="font-size:.75rem;color:var(--gold-light);margin-top:.1rem;">—</div>
+          </div>
+          <button onclick="toggleUserMenu();openEditProfile()" style="width:100%;text-align:left;padding:.75rem 1rem;background:none;border:none;color:#fff;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='none'">
+            ✏️ Editar meu perfil
+          </button>
+          <button onclick="toggleUserMenu();doLogout()" style="width:100%;text-align:left;padding:.75rem 1rem;background:none;border:none;color:#f87171;font-size:.88rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;border-top:1px solid rgba(255,255,255,.08);" onmouseover="this.style.background='rgba(255,255,255,.07)'" onmouseout="this.style.background='none'">
+            🚪 Sair
+          </button>
+        </div>
+      </div>
         <button class="btn btn-primary btn-sm" id="btn-confirmar" onclick="confirmarPresenca()">✅ Confirmar Presença</button>
       </div>
     </header>
@@ -594,7 +612,7 @@
               <div class="countdown-box"><span id="cd-min">0</span><small>min</small></div>
               <div class="countdown-box"><span id="cd-sec">0</span><small>seg</small></div>
             </div>
-            <p style="font-size:.8rem;color:var(--muted);text-align:center;">Lista fecha 1h antes da pelada.</p>
+            
           </div>
         </div>
 
@@ -639,40 +657,20 @@
 
       <!-- ══ PAGE SORTEIO ══ -->
       <div class="page" id="page-sorteio">
-        <div class="sort-top">
-          <div class="card">
-            <div class="card-header">
-              <div><h3>🎲 Sorteio de Times</h3><p>3 times de 6 jogadores com níveis equilibrados. Goleiros fixos fora do sorteio.</p></div>
-              <button class="btn btn-primary btn-sm adm-only" style="display:none;" onclick="sortearTimes()">Sortear</button>
-            </div>
-            <div style="padding:1rem;">
-              <div class="teams-grid" id="teams-grid">
-                <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);">
-                  Clique em "Sortear" para gerar os times com os confirmados da semana.
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card sort-info">
-            <div class="card-header"><div><h3>Regras do sorteio</h3></div></div>
-            <div style="padding:1rem;display:grid;gap:.6rem;">
-              <div class="sort-legend">
-                <div class="legend-row"><div class="legend-dot" style="background:#8fe49b;"></div>Nível 1 — máx. 1 por time (se possível)</div>
-                <div class="legend-row"><div class="legend-dot" style="background:#9de6ff;"></div>Nível 2 — distribuídos primeiro</div>
-                <div class="legend-row"><div class="legend-dot" style="background:var(--gold-light);"></div>Nível 3 — equilíbrio de soma</div>
-                <div class="legend-row"><div class="legend-dot" style="background:#f9d07a;"></div>Nível 4</div>
-                <div class="legend-row"><div class="legend-dot" style="background:#f5b89a;"></div>Nível 5</div>
-                <div class="legend-row"><div class="legend-dot" style="background:#ffb3b3;"></div>Nível 6</div>
-              </div>
-              <div class="divider"></div>
-              <p style="font-size:.8rem;color:var(--muted);">Se houver 4+ jogadores nível 1, o sistema permite 2 N1 no mesmo time. O ADM pode trocar depois do sorteio.</p>
-            </div>
-          </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+          <h3 style="margin:0;font-size:1.05rem;">🎲 Sorteio de Times</h3>
+          <button class="btn btn-primary btn-sm adm-only" style="display:none;" onclick="sortearTimes()">Sortear agora</button>
         </div>
-        <div class="card">
-          <div class="card-header"><div><h3>🥅 Goleiros Fixos</h3><p>Fora do sorteio — o ADM aloca manualmente.</p></div></div>
-          <div class="gk-section" id="gk-section"></div>
+
+        <!-- Mensagem: sorteio ainda não feito -->
+        <div id="sorteio-vazio" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3.5rem 1rem;text-align:center;gap:1rem;">
+          <div style="font-size:2.8rem;">⏳</div>
+          <div style="font-weight:700;font-size:1.05rem;">Nenhum sorteio realizado ainda</div>
+          <div style="color:var(--muted);font-size:.88rem;max-width:280px;">O administrador irá sortear os times antes da pelada. Volte mais tarde!</div>
         </div>
+
+        <!-- Times (aparece só após sorteio) -->
+        <div id="teams-grid" class="teams-grid" style="display:none;"></div>
       </div>
 
       <!-- ══ PAGE PAGAMENTOS ══ -->
@@ -694,9 +692,13 @@
           </div>
           <button class="btn btn-secondary btn-sm" onclick="copyPix()">📋 Copiar chave</button>
         </div>
-        <div class="card">
+        <div class="card adm-only" id="card-controle-pag" style="display:none;">
           <div class="card-header"><div><h3>Controle de Pagamentos</h3><p>ADM marca manualmente após receber o PIX.</p></div></div>
           <div class="pay-list" id="pay-list"></div>
+        </div>
+        <!-- Status próprio para jogador -->
+        <div id="card-meu-status" style="display:none;">
+          <div class="pay-list" id="pay-list-jogador"></div>
         </div>
       </div>
 
@@ -886,7 +888,45 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
+function toggleUserMenu() {
+  const d = document.getElementById('user-dropdown');
+  d.style.display = d.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+  if(!e.target.closest('#topbar-user-pill') && !e.target.closest('#user-dropdown')) {
+    const d = document.getElementById('user-dropdown');
+    if(d) d.style.display = 'none';
+  }
+});
+
+function openEditProfile() {
+  document.getElementById('edit-profile-name').value = CURRENT_USER || '';
+  document.getElementById('edit-profile-nick').value = '';
+  document.getElementById('modal-edit-profile').style.display = 'flex';
+}
+
+function closeEditProfile() {
+  document.getElementById('modal-edit-profile').style.display = 'none';
+}
+
+async function saveEditProfile() {
+  const name = document.getElementById('edit-profile-name').value.trim();
+  const nick = document.getElementById('edit-profile-nick').value.trim();
+  if(!name){ showToast('⚠️ Nome não pode ficar vazio.'); return; }
+  const { error } = await _supa.from('profiles')
+    .update({ name: name, ...(nick ? { nickname: nick } : {}) })
+    .eq('id', CURRENT_USER_ID);
+  if(error){ showToast('❌ Erro ao salvar: ' + error.message); return; }
+  CURRENT_USER = name;
+  document.getElementById('topbar-user-pill-text').textContent = name;
+  document.getElementById('dropdown-user-name').textContent = name;
+  document.getElementById('sb-user').textContent = name;
+  closeEditProfile();
+  showToast('✅ Perfil atualizado!');
+}
+
+</script>
 <script>
 // ── SUPABASE CLIENT ──
 const _supa = supabase.createClient('https://iekgizdkderjzwswdbdp.supabase.co', 'sb_publishable_fXXwFKowhR3PglYgLG6cWg_LKotO2n5');
@@ -1128,7 +1168,9 @@ async function onAuthSuccess(user) {
   document.getElementById('app-shell').style.display = 'flex';
   document.getElementById('sb-user').textContent = CURRENT_USER;
   document.getElementById('sb-role').textContent = IS_ADM ? '🛡️ Administrador' : '👟 Jogador';
-  document.getElementById('topbar-user-pill').textContent = CURRENT_USER;
+  document.getElementById('topbar-user-pill-text').textContent = CURRENT_USER;
+  document.getElementById('dropdown-user-name').textContent = CURRENT_USER;
+  document.getElementById('dropdown-user-role').textContent = IS_ADM ? '🛡️ Administrador' : '👟 Jogador';
   document.querySelectorAll('.adm-only').forEach(el => el.style.display = IS_ADM ? '' : 'none');
   await initApp();
 }
@@ -1413,7 +1455,14 @@ async function sortearTimes(){
 
 function renderTeams(){
   const grid = document.getElementById('teams-grid');
-  if(!TEAMS.length){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);">Clique em "Sortear" para gerar os times.</div>'; return; }
+  const vazio = document.getElementById('sorteio-vazio');
+  if(!TEAMS.length){
+    grid.style.display = 'none';
+    if(vazio) vazio.style.display = 'flex';
+    return;
+  }
+  if(vazio) vazio.style.display = 'none';
+  grid.style.display = 'grid';
   grid.innerHTML = TEAMS.map((t,ti)=>`
     <div class="team-col">
       <div class="team-header">
@@ -1481,16 +1530,44 @@ function renderPagamentos(){
   document.getElementById('churrasco-banner').style.display = isLastWeek ? 'flex' : 'none';
 
   const list = document.getElementById('pay-list');
-  list.innerHTML = PLAYERS.map(p=>`
-    <div class="pay-item list-item">
-      <div class="person">
-        <div class="avatar avatar-sm">${initials(p.name)}</div>
-        <div><div class="person-name">${p.name}</div><div class="person-sub">${cap(p.type)} · ${p.type==='mensalista'?'R$ '+CONFIG.mensalidade:'R$ '+CONFIG.diaria+'/jogo'}</div></div>
-      </div>
-      <div class="pay-item-right">
-        ${IS_ADM ? `<button class="btn btn-sm ${p.pago?'btn-secondary':'btn-primary'}" onclick="togglePago(${p.id})">${p.pago?'✅ Pago':'Marcar pago'}</button>` : `<span class="badge ${p.pago?'badge-success':'badge-danger'}">${p.pago?'Pago':'Pendente'}</span>`}
-      </div>
-    </div>`).join('');
+  if(IS_ADM) {
+    document.getElementById('card-controle-pag').style.display = '';
+    document.getElementById('card-meu-status').style.display = 'none';
+    list.innerHTML = PLAYERS.map(p=>`
+      <div class="pay-item list-item">
+        <div class="person">
+          <div class="avatar avatar-sm">${initials(p.name)}</div>
+          <div><div class="person-name">${p.name}</div><div class="person-sub">${cap(p.type)} · ${p.type==='mensalista'?'R$ '+CONFIG.mensalidade:'R$ '+CONFIG.diaria+'/jogo'}</div></div>
+        </div>
+        <div class="pay-item-right">
+          <button class="btn btn-sm ${p.pago?'btn-secondary':'btn-primary'}" onclick="togglePago(${p.id})">${p.pago?'✅ Pago':'Marcar pago'}</button>
+        </div>
+      </div>`).join('');
+  } else {
+    document.getElementById('card-controle-pag').style.display = 'none';
+    document.getElementById('card-meu-status').style.display = '';
+    const jogList = document.getElementById('pay-list-jogador');
+    const me = PLAYERS.find(p => p.name === CURRENT_USER) || null;
+    if(me) {
+      jogList.innerHTML = `
+        <div class="pay-item list-item" style="flex-direction:column;align-items:flex-start;gap:.5rem;padding:1.25rem;">
+          <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);">Seu status este mês</div>
+          <div style="display:flex;align-items:center;gap:1rem;width:100%;">
+            <div class="person">
+              <div class="avatar avatar-sm">${initials(me.name)}</div>
+              <div>
+                <div class="person-name">${me.name}</div>
+                <div class="person-sub">${cap(me.type)} · ${me.type==='mensalista'?'R$ '+CONFIG.mensalidade:'R$ '+CONFIG.diaria+'/jogo'}</div>
+              </div>
+            </div>
+            <span class="badge ${me.pago?'badge-success':'badge-danger'}" style="margin-left:auto;font-size:.9rem;padding:.4rem .9rem;">${me.pago?'✅ Pago':'⏳ Pendente'}</span>
+          </div>
+          ${!me.pago ? `<div style="font-size:.82rem;color:var(--muted);margin-top:.25rem;">Pague via PIX até o dia ${CONFIG.vencDia} para evitar suspensão.</div>` : ''}
+        </div>`;
+    } else {
+      jogList.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--muted);">Seu cadastro ainda não foi vinculado. Fale com o ADM.</div>';
+    }
+  }
 }
 
 function copyPix(){
@@ -1651,5 +1728,24 @@ function confirmResolve(val){
 // Enter key on login
 document.getElementById('login-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 </script>
+
+  <!-- MODAL EDITAR PERFIL -->
+  <div id="modal-edit-profile" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:center;justify-content:center;">
+    <div style="background:#0f2012;border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:1.5rem;width:90%;max-width:400px;box-shadow:0 16px 48px rgba(0,0,0,.6);">
+      <h3 style="margin:0 0 1.2rem;font-size:1.1rem;">✏️ Editar meu perfil</h3>
+      <div class="form-group" style="margin-bottom:1rem;">
+        <label class="form-label">Seu nome</label>
+        <input class="form-input" type="text" id="edit-profile-name" placeholder="Seu nome completo"/>
+      </div>
+      <div class="form-group" style="margin-bottom:1.2rem;">
+        <label class="form-label">Apelido (opcional)</label>
+        <input class="form-input" type="text" id="edit-profile-nick" placeholder="Ex: Bolinha, Craque..."/>
+      </div>
+      <div style="display:flex;gap:.75rem;">
+        <button class="btn btn-primary" onclick="saveEditProfile()" style="flex:1;justify-content:center;">Salvar</button>
+        <button class="btn" onclick="closeEditProfile()" style="flex:1;justify-content:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);">Cancelar</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
