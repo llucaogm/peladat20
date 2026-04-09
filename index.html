@@ -449,6 +449,17 @@
       .form-row{grid-template-columns:1fr;}
     }
   </style>
+  <script>
+  function openUserModal() {
+    var m = document.getElementById('modal-user-menu');
+    if(!m) return;
+    m.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;align-items:flex-start;justify-content:flex-end;padding:4rem 1.5rem 0;';
+  }
+  function closeUserModal() {
+    var m = document.getElementById('modal-user-menu');
+    if(m) m.style.display = 'none';
+  }
+  </script>
 </head>
 <body>
 
@@ -874,14 +885,6 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
-function openUserModal() {
-  var m = document.getElementById('modal-user-menu');
-  m.style.cssText = 'display:flex !important;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;align-items:flex-start;justify-content:flex-end;padding:4rem 1.5rem 0;';
-}
-function closeUserModal() {
-  document.getElementById('modal-user-menu').style.display = 'none';
-}
-
 function openEditProfile() {
   document.getElementById('edit-profile-name').value = CURRENT_USER || '';
   document.getElementById('edit-profile-nick').value = '';
@@ -1068,6 +1071,8 @@ async function dbSaveTeams(teams){
 }
 </script>
 <script>
+// openUserModal definido no head
+
 // ═══════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════
